@@ -1,15 +1,12 @@
 # UI Test Automation Demo
 
 > **Shopify Live Store E2E Testing Suite**  
-> Governed by principles that prioritize safety, clarity, and reliability over breadth.
-
-[![Constitution](https://img.shields.io/badge/Constitution-v1.0.0-blue)](.specify/memory/constitution.md)
 
 ---
 
 ## Overview
 
-This project provides end-to-end smoke tests for a live Shopify store. Our testing approach is designed to build user trust through safe, transparent, and maintainable practices while providing clear evidence of system health for both technical and non-technical stakeholders.
+This project provides end-to-end smoke tests for a live Shopify store. My testing approach is designed to build user trust through safe, transparent, and maintainable practices while providing clear evidence of system health for both technical and non-technical stakeholders.
 
 **Key Characteristics:**
 
@@ -23,8 +20,6 @@ This project provides end-to-end smoke tests for a live Shopify store. Our testi
 
 ## Testing Philosophy
 
-This project is governed by a [Project Constitution](.specify/memory/constitution.md) that establishes eight core principles:
-
 1. **Priority Hierarchy**: User trust, evidence clarity, and sustainable maintenance over feature breadth
 2. **Code Quality Standards**: Readable tests with deterministic setup/teardown that leave no residue
 3. **Testing Standards**: Stable selectors, explicit waits, data hygiene, and repeatable outcomes
@@ -34,11 +29,9 @@ This project is governed by a [Project Constitution](.specify/memory/constitutio
 7. **Trade-off Precedence**: Safety > Clarity > Reliability > Breadth
 8. **Risk Management**: Changes increasing risk require mitigation and rollback plans
 
-> 💡 **All testing decisions must reference these principles.** When in doubt, consult the constitution.
-
 ---
 
-## What We Test
+## What is Tested
 
 ### Core User Flows (Smoke Suite)
 
@@ -206,22 +199,9 @@ npm test
 ui-test-automation-demo/
 ├── .github/workflows/
 │   └── smoke-tests.yml         # CI/CD workflow (PR, nightly, manual triggers)
-├── .specify/                   # Governance & templates
-│   ├── memory/
-│   │   └── constitution.md     # Project governing principles
-│   └── templates/
-│       ├── plan-template.md
-│       ├── spec-template.md
-│       └── tasks-template.md
 ├── docs/
 │   ├── runbook.md              # Troubleshooting guide
 │   └── maintenance.md          # Maintenance guide
-├── specs/001-build-an-mvp/
-│   ├── spec.md                 # Feature specification
-│   ├── plan.md                 # Implementation plan
-│   ├── tasks.md                # Task breakdown
-│   ├── data-model.md           # Page Object Models
-│   └── research.md             # Framework selection rationale
 ├── tests/
 │   ├── smoke/
 │   │   ├── homepage.spec.ts    # FR1, FR2: Homepage & Navigation
@@ -627,7 +607,6 @@ For questions or issues:
 
 - **Test Failures**: See [Runbook](docs/runbook.md) for common issues and solutions
 - **Maintenance**: See [Maintenance Guide](docs/maintenance.md) for adding tests and updating selectors
-- **Constitution Questions**: See [Constitution](.specify/memory/constitution.md)
 - **Technical Issues**: Open GitHub issue with evidence (screenshots, logs, test report HTML)
 - **Store Owner**: johnsonjrre@gmail.com (receives failure email notifications)
 
