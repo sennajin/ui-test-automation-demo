@@ -21,6 +21,8 @@ playwright/.cache/
 # IDE
 .vscode/
 .idea/
+.cursor/
+.cursorignore
 *.swp
 *.swo
 *~
@@ -41,6 +43,8 @@ build/
 *.egg-info/
 *.tsbuildinfo
 
-# Specs
+# Speckit / Specification files
 /.specify/
 /specs/
+.speckit/
+*.spec.lock
