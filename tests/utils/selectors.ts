@@ -89,8 +89,15 @@ export const SELECTORS = {
   },
 
   removeFromCart: {
-    primary: 'button:has-text("Remove")',  // Text-based is stable across themes
-    fallback: ['a:has-text("Remove")', '.cart-item__remove', '[data-remove-item]', 'button.cart__remove'],
+    primary: 'cart-remove-button',  // Dawn theme custom element
+    fallback: [
+      '[href*="change?"][href*="quantity=0"]',  // Link that changes quantity to 0
+      '[aria-label*="Remove"]',                  // Accessible label
+      'button:has-text("Remove")',                // Text-based remove button
+      'a:has-text("Remove")',                    // Link with "Remove" text
+      '.cart-item__remove',                      // Generic cart item remove class
+      '[data-remove-item]'                       // Data attribute
+    ],
     timeout: 5000
   }
 };

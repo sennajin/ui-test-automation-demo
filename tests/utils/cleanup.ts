@@ -1,6 +1,5 @@
 import { Page, expect } from '@playwright/test';
-import { SELECTORS, getElement } from './selectors';
-import { waitForCartCount } from './waitConditions';
+import { SELECTORS } from './selectors';
 
 /**
  * Cart cleanup utilities
@@ -62,8 +61,11 @@ export async function cleanupCart(page: Page): Promise<void> {
       for (let i = 0; i < count; i++) {
         try {
           await quantityInputs.nth(i).fill('0');
-        } catch (e) {
-          console.warn(`[CLEANUP] Failed to set quantity to 0 for item ${i + 1}`);
+        } catch (e: unknown) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const errorMsg = e instanceof Error ? e.message : 'Unknown error';
+          console.warn(`[CLEANUP] Failed to set quantity to 0 for item ${i + 1}: ${errorMsg}`);
+          // Continue with other items even if one fails
         }
       }
       
@@ -99,18 +101,22 @@ export async function verifyCartEmpty(page: Page): Promise<void> {
 }
 
 /**
- * Get current cart count without navigation
+ * Get current cart count from Shopify cart API
  * Useful for getting baseline before add-to-cart tests
+ * 
+ * Note: This reads from cart.js API (source of truth) rather than
+ * the visual badge element, which may show stale/cached data due to
+ * theme JavaScript sync issues.
  */
 export async function getCurrentCartCount(page: Page): Promise<number> {
   try {
-    const cartCountElement = page.locator(SELECTORS.cartCount.primary).first();
-    const countText = await cartCountElement.textContent({ timeout: 5000 });
-    // Extract just the number (handles formats like "5", "5 items", "5 item", etc.)
-    const match = countText?.match(/\d+/);
-    return match ? parseInt(match[0], 10) : 0;
-  } catch {
-    // If cart count not visible, assume empty
+    const baseUrl = process.env.STORE_URL || 'https://prometheamosaic.com';
+    const response = await page.request.get(`${baseUrl}/cart.js`);
+    const cartData = await response.json();
+    return cartData.item_count || 0;
+  } catch (error) {
+    console.warn('[CART] Failed to get cart count from API:', error);
+    // If API call fails, assume empty
     return 0;
   }
 }

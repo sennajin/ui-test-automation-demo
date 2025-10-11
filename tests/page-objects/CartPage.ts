@@ -24,23 +24,30 @@ export class CartPage {
   }
 
   /**
-   * Get all cart item elements
+   * Get all cart item elements on the cart page
    * Returns empty locator if cart is empty
+   * 
+   * Note: Uses :visible filter to avoid matching hidden cart drawer items
    */
   async getCartItems(): Promise<Locator> {
-    return this.page.locator('.cart-item, [data-cart-item], .cart__item');
+    return this.page.locator('.cart-item:visible, [data-cart-item]:visible, .cart__item:visible');
   }
 
   /**
-   * Get current cart item count from cart icon
-   * Returns 0 if cart is empty or count not visible
+   * Get current cart item count from Shopify cart API
+   * Returns 0 if cart is empty or API call fails
+   * 
+   * Note: This reads from cart.js API (source of truth) rather than
+   * the visual badge element, which may show stale/cached data due to
+   * theme JavaScript sync issues.
    */
   async getCartCount(): Promise<number> {
     try {
-      const cartCountLocator = this.page.locator(SELECTORS.cartCount.primary).first();
-      const text = await cartCountLocator.textContent({ timeout: 5000 });
-      return parseInt(text || '0', 10);
-    } catch {
+      const response = await this.page.request.get(`${this.url}.js`);
+      const cartData = await response.json();
+      return cartData.item_count || 0;
+    } catch (error) {
+      console.warn('[CART] Failed to get cart count from API:', error);
       return 0;
     }
   }

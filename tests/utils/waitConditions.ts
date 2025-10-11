@@ -58,36 +58,52 @@ export async function waitForProductCard(page: Page): Promise<void> {
 }
 
 /**
- * Wait for cart count to update to expected value
+ * Wait for cart count to update to expected value via API
  * Used for: FR4, FR5 - Add to cart and remove from cart
+ * 
+ * Note: Polls cart.js API (source of truth) rather than the visual badge,
+ * which may show stale/cached data due to theme JavaScript sync issues.
  */
 export async function waitForCartCount(
   page: Page, 
   expectedCount: number, 
   timeout = 5000
 ): Promise<void> {
-  const cartCountLocator = page.locator(SELECTORS.cartCount.primary).first();
+  const baseUrl = process.env.STORE_URL || 'https://prometheamosaic.com';
+  const startTime = Date.now();
   
-  // Wait for cart count element to be visible
-  await cartCountLocator.waitFor({ state: 'visible', timeout });
+  while (Date.now() - startTime < timeout) {
+    try {
+      const response = await page.request.get(`${baseUrl}/cart.js`);
+      const cartData = await response.json();
+      
+      if (cartData.item_count === expectedCount) {
+        return; // Success!
+      }
+    } catch (error) {
+      // Ignore errors and retry
+    }
+    
+    // Wait before retrying
+    await page.waitForTimeout(100);
+  }
   
-  // Wait for count to match expected value
-  await expect(cartCountLocator).toHaveText(
-    expectedCount.toString(), 
-    { timeout }
+  // Timeout reached - throw error with current state
+  const response = await page.request.get(`${baseUrl}/cart.js`);
+  const cartData = await response.json();
+  throw new Error(
+    `Cart count did not reach ${expectedCount} within ${timeout}ms. Current count: ${cartData.item_count}`
   );
 }
 
 /**
- * Wait for add to cart action to complete
- * Cart count update is primary indicator (already verified in ProductPage)
- * Success messages are theme-dependent and unreliable - skip checking them
+ * Wait for add to cart action to complete via API
+ * Success messages are theme-dependent and unreliable - we use cart.js API instead
  * Used for: FR4 - Add to cart validation
  */
 export async function waitForAddToCart(page: Page, previousCount: number = 0): Promise<void> {
-  // Cart count is already verified in ProductPage.clickAddToCart
-  // Just add a small wait for UI to settle
-  await page.waitForTimeout(500);
+  // Wait for cart count to increment
+  await waitForCartCount(page, previousCount + 1, 5000);
 }
 
 /**
