@@ -47,15 +47,11 @@ jobs:
       matrix:
         # 4 viewport configurations per spec
         # For manual runs, can be filtered by input
-        viewport: ${{ 
-          github.event_name == 'workflow_dispatch' && github.event.inputs.viewport != 'all' 
-          && fromJSON(format('["{0}"]', github.event.inputs.viewport)) 
-          || fromJSON('["small-desktop", "standard-laptop", "full-hd", "large-desktop"]')
-        }}
+        viewport: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.viewport != 'all' && fromJSON(format('["{0}"]', github.event.inputs.viewport)) || fromJSON('["small-desktop", "standard-laptop", "full-hd", "large-desktop"]') }}
     
     steps:
       - name: Display manual run info
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.description
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.description }}
         run: |
           echo "### Manual Test Run"
           echo "**Description:** ${{ github.event.inputs.description }}"
@@ -107,7 +103,7 @@ jobs:
           retention-days: 7
       
       - name: Send failure email
-        if: failure()
+        if: ${{ failure() }}
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
@@ -119,7 +115,7 @@ jobs:
           to: johnsonjrre@gmail.com
           from: Promethea Mosaic CI <no-reply@github.com>
           body: |
-            🔴 Test suite failed for viewport: ${{ matrix.viewport }}
+            Test suite failed for viewport: ${{ matrix.viewport }}
             
             **Test Run Details:**
             - Run Number: ${{ github.run_number }}
@@ -148,12 +144,12 @@ jobs:
     name: Manual Run Summary
     runs-on: ubuntu-latest
     needs: test
-    if: always() && github.event_name == 'workflow_dispatch'
+    if: ${{ always() && github.event_name == 'workflow_dispatch' }}
     
     steps:
       - name: Generate summary
         run: |
-          echo "### 🎯 Manual Test Run Complete" >> $GITHUB_STEP_SUMMARY
+          echo "### Manual Test Run Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Configuration:**" >> $GITHUB_STEP_SUMMARY
           echo "- Viewport: \`${{ github.event.inputs.viewport }}\`" >> $GITHUB_STEP_SUMMARY
@@ -171,7 +167,7 @@ jobs:
     name: Post PR Comment
     runs-on: ubuntu-latest
     needs: test
-    if: always() && github.event_name == 'pull_request'
+    if: ${{ always() && github.event_name == 'pull_request' }}
     
     steps:
       - name: Post PR comment
@@ -190,7 +186,7 @@ jobs:
             const total = testJobs.length;
             
             // Determine overall status
-            const status = failed === 0 ? '✅ All tests passed!' : `⚠️ ${failed} viewport(s) failed`;
+            const status = failed === 0 ? 'All tests passed!' : `${failed} viewport(s) failed`;
             const emoji = failed === 0 ? '✅' : '❌';
             
             const body = `## ${emoji} Smoke Test Results
@@ -201,16 +197,16 @@ jobs:
             |----------|--------|----------|
             ${testJobs.map(j => {
               const viewport = j.name.replace('Test - ', '');
-              const status = j.conclusion === 'success' ? '✅ Passed' : '❌ Failed';
+              const status = j.conclusion === 'success' ? 'Passed' : 'Failed';
               const duration = Math.round((new Date(j.completed_at) - new Date(j.started_at)) / 1000);
               return `| ${viewport} | ${status} | ${duration}s |`;
             }).join('\n')}
             
             **Summary:** ${passed}/${total} viewports passed
             
-            ${failed > 0 ? '⚠️ **Action Required:** Review failed test artifacts and screenshots in the workflow run.' : ''}
+            ${failed > 0 ? '**Action Required:** Review failed test artifacts and screenshots in the workflow run.' : ''}
             
-            [📊 View Full Report →](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            [View Full Report →](${context.payload.repository.html_url}/actions/runs/${context.runId})
             
             ---
             <sub>Automated smoke test suite • [View Constitution](specs/001-build-an-mvp/plan.md)</sub>
