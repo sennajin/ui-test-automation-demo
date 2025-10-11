@@ -1,0 +1,153 @@
+name: Smoke Tests
+
+# Trigger conditions per spec requirements
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  test:
+    name: Test - ${{ matrix.viewport }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    strategy:
+      # Don't cancel all jobs if one fails
+      fail-fast: false
+      matrix:
+        # 4 viewport configurations per spec
+        viewport: [small-desktop, standard-laptop, full-hd, large-desktop]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+      
+      - name: Run smoke tests
+        env:
+          STORE_URL: https://prometheamosaic.com/
+          CI: true
+        run: npx playwright test --project=${{ matrix.viewport }}
+      
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report-${{ matrix.viewport }}
+          path: playwright-report/
+          retention-days: 7  # Per spec requirement
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.viewport }}
+          path: test-results/
+          retention-days: 7
+      
+      - name: Send failure email
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: '⚠️ Promethea Mosaic Smoke Tests Failed - ${{ matrix.viewport }}'
+          to: johnsonjrre@gmail.com
+          from: Promethea Mosaic CI <no-reply@github.com>
+          body: |
+            🔴 Test suite failed for viewport: ${{ matrix.viewport }}
+            
+            **Test Run Details:**
+            - Run Number: ${{ github.run_number }}
+            - Branch: ${{ github.ref_name }}
+            - Commit: ${{ github.sha }}
+            - Triggered by: ${{ github.event_name }}
+            
+            **View Full Report:**
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            **What to do:**
+            1. Review the test report artifacts (link above)
+            2. Check screenshots for visual clues
+            3. If theme or content changed, update selectors
+            4. See runbook for common issues: docs/runbook.md
+            
+            ---
+            This is an automated message from the Promethea Mosaic smoke test suite.
+          attachments: test-results/**/*.png,playwright-report/screenshots/*.png
+
+  # Post PR comment with test summary
+  report:
+    name: Post PR Comment
+    runs-on: ubuntu-latest
+    needs: test
+    if: always() && github.event_name == 'pull_request'
+    
+    steps:
+      - name: Post PR comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            });
+            
+            const testJobs = jobs.filter(j => j.name.startsWith('Test -'));
+            const passed = testJobs.filter(j => j.conclusion === 'success').length;
+            const failed = testJobs.filter(j => j.conclusion === 'failure').length;
+            const total = testJobs.length;
+            
+            // Determine overall status
+            const status = failed === 0 ? '✅ All tests passed!' : `⚠️ ${failed} viewport(s) failed`;
+            const emoji = failed === 0 ? '✅' : '❌';
+            
+            const body = `## ${emoji} Smoke Test Results
+            
+            **Status:** ${status}
+            
+            | Viewport | Status | Duration |
+            |----------|--------|----------|
+            ${testJobs.map(j => {
+              const viewport = j.name.replace('Test - ', '');
+              const status = j.conclusion === 'success' ? '✅ Passed' : '❌ Failed';
+              const duration = Math.round((new Date(j.completed_at) - new Date(j.started_at)) / 1000);
+              return `| ${viewport} | ${status} | ${duration}s |`;
+            }).join('\n')}
+            
+            **Summary:** ${passed}/${total} viewports passed
+            
+            ${failed > 0 ? '⚠️ **Action Required:** Review failed test artifacts and screenshots in the workflow run.' : ''}
+            
+            [📊 View Full Report →](${context.payload.repository.html_url}/actions/runs/${context.runId})
+            
+            ---
+            <sub>Automated smoke test suite • [View Constitution](specs/001-build-an-mvp/plan.md)</sub>
+            `;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+

@@ -1,104 +1,137 @@
-# Implementation Plan: [FEATURE]
+# Plan: [FEATURE_OR_CHANGE_NAME]
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Created:** [YYYY-MM-DD]  
+**Author:** [AUTHOR_NAME]  
+**Status:** [Draft | In Review | Approved | Implemented]  
+**Constitution Version:** 1.0.0
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+---
 
-## Summary
+## Overview
 
-[Extract from feature spec: primary requirement + technical approach from research]
+### Problem Statement
 
-## Technical Context
+[Describe the problem, gap, or opportunity this plan addresses. Be specific about user impact or technical debt.]
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
+### Proposed Solution
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+[High-level description of the approach. Reference how it aligns with constitution principles.]
 
-## Constitution Check
+### Success Criteria
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+[Measurable outcomes that indicate successful implementation.]
 
-[Gates determined based on constitution file]
+---
 
-## Project Structure
+## Constitution Compliance Check
 
-### Documentation (this feature)
+This section ensures alignment with the [Project Constitution](../memory/constitution.md).
 
-```
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
-```
+### Principle Alignment
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+| Principle | Compliance Status | Notes |
+|-----------|------------------|-------|
+| 1. Priority Hierarchy | ✅ ⚠️ ❌ | [How does this plan prioritize trust/clarity/maintenance?] |
+| 2. Code Quality Standards | ✅ ⚠️ ❌ | [Are tests readable, deterministic, residue-free?] |
+| 3. Testing Standards | ✅ ⚠️ ❌ | [Stable selectors, explicit waits, data hygiene?] |
+| 4. UX Consistency | ✅ ⚠️ ❌ | [Does this maintain/improve core flow coverage?] |
+| 5. Performance Requirements | ✅ ⚠️ ❌ | [Impact on smoke suite runtime?] |
+| 6. Governance Decision Rules | ✅ ⚠️ ❌ | [Safety, resilience, report readability, minimal config?] |
+| 7. Trade-off Precedence | ✅ ⚠️ ❌ | [Safety > Clarity > Reliability > Breadth order followed?] |
+| 8. Risk Management | ✅ ⚠️ ❌ | [Mitigation and rollback plan if applicable?] |
 
-```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+### Risk Assessment
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+**Store Safety Risk:** [None | Low | Medium | High]
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+[If Medium or High: Describe specific risks and mitigation strategies.]
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+**Report Readability Impact:** [Improved | Unchanged | Degraded]
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
+[If Degraded: Justify and provide compensating improvements.]
 
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
+### Rollback Plan
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+[If this change introduces risk, describe how to quickly revert to previous state.]
 
-## Complexity Tracking
+---
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+## Technical Design
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+### Architecture
+
+[Component diagram, sequence diagram, or written description of technical approach.]
+
+### Selector Strategy
+
+[For UI testing changes: Document selector approach, fallback strategy, and stability justification.]
+
+### Wait & Synchronization Strategy
+
+[For UI testing changes: How will tests wait for readiness? What conditions signal completion?]
+
+### Data Hygiene Plan
+
+[For tests that modify state: How will cleanup happen? What guarantees deterministic execution?]
+
+---
+
+## Implementation Phases
+
+### Phase 1: [PHASE_NAME]
+
+- **Duration:** [Estimated time]
+- **Deliverables:** [Specific outputs]
+- **Dependencies:** [Prerequisites or blockers]
+- **Validation:** [How to verify phase completion]
+
+### Phase 2: [PHASE_NAME]
+
+[Repeat as needed]
+
+---
+
+## Testing & Validation
+
+### Test Scope
+
+- [ ] Unit tests (if applicable)
+- [ ] Integration tests (if applicable)
+- [ ] E2E smoke tests (required for UI changes)
+- [ ] Performance benchmarks (if runtime changes expected)
+
+### Acceptance Criteria
+
+1. [Specific, measurable criterion]
+2. [...]
+
+---
+
+## Documentation Updates
+
+- [ ] Update README if user-facing changes
+- [ ] Update inline code comments for complex logic
+- [ ] Update test documentation if new patterns introduced
+- [ ] Update constitution if new principle identified (requires amendment procedure)
+
+---
+
+## Open Questions
+
+[List unresolved questions that need stakeholder input.]
+
+---
+
+## Approvals
+
+- [ ] Project Maintainer: [NAME] on [DATE]
+- [ ] Active Contributor Review: [NAME] on [DATE]
+- [ ] Constitution Compliance Verified: [NAME] on [DATE]
+
+---
+
+## Amendment Log
+
+[Track significant changes to this plan after initial draft.]
+
+- **[YYYY-MM-DD]:** [Change description] - [Author]

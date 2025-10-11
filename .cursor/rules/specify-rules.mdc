@@ -1,15 +1,16 @@
-# [PROJECT NAME] Development Guidelines
+# ui-test-automation-demo Development Guidelines
 
-Auto-generated from all feature plans. Last updated: [DATE]
+Auto-generated from all feature plans. Last updated: 2025-10-11
 
 **Governed by**: [Project Constitution](../memory/constitution.md)
 
 ## Active Technologies
-[EXTRACTED FROM ALL PLAN.MD FILES]
+- (001-build-an-mvp)
 
 ## Project Structure
 ```
-[ACTUAL STRUCTURE FROM PLANS]
+src/
+tests/
 ```
 
 ## Governing Principles
@@ -26,10 +27,10 @@ All development must align with the [Project Constitution](../memory/constitutio
 8. **Risk Management**: Mitigation + rollback for risky changes
 
 ## Commands
-[ONLY COMMANDS FOR ACTIVE TECHNOLOGIES]
+# Add commands for 
 
 ## Code Style
-[LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE]
+: Follow standard conventions
 
 **Testing Code Style** (per Constitution Principle 2):
 - Test names MUST clearly state intent
@@ -39,7 +40,7 @@ All development must align with the [Project Constitution](../memory/constitutio
 - Stable selectors with documented fallbacks
 
 ## Recent Changes
-[LAST 3 FEATURES AND WHAT THEY ADDED]
+- 001-build-an-mvp: Added
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
