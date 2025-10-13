@@ -10,11 +10,11 @@ This project provides end-to-end smoke tests for a live Shopify store. My testin
 
 **Key Characteristics:**
 
-- ✅ **Safe for Live Store**: Read-only operations with guaranteed cleanup for state changes
-- ✅ **Clear Evidence**: Human-readable reports with screenshots and videos on failure
-- ✅ **Resilient to Change**: Stable selectors with fallbacks, content-churn resistant
-- ✅ **Fast Smoke Suite**: Completes in < 5 minutes for routine PR checks
-- ✅ **Maintainable**: Readable tests with explicit intent and deterministic execution
+- **Safe for Live Store**: Read-only operations with guaranteed cleanup for state changes
+- **Clear Evidence**: Human-readable reports with screenshots and videos on failure
+- **Resilient to Change**: Stable selectors with fallbacks, content-churn resistant
+- **Fast Smoke Suite**: Completes in < 5 minutes for routine PR checks
+- **Maintainable**: Readable tests with explicit intent and deterministic execution
 
 ---
 
@@ -46,31 +46,29 @@ This project provides end-to-end smoke tests for a live Shopify store. My testin
 **Target Runtime:** < 10 minutes (parallel execution with 6 workers)
 
 #### Test Scenario 1: Homepage & Navigation
-✅ Brand title "Promethea Mosaic" visible on homepage  
-✅ Primary navigation visible with ≥3 links  
-✅ Collections link present and clickable  
+Brand title "Promethea Mosaic" visible on homepage  
+Primary navigation visible with ≥3 links  
+Collections link present and clickable  
 
 #### Test Scenario 2: Collection & Product Discovery
-✅ Bookmarks collection loads with products  
-✅ Product cards display image, title, and price  
-✅ Product cards clickable, navigate to detail page  
-✅ Product detail page shows title, price, add-to-cart button  
+Bookmarks collection loads with products  
+Product cards display image, title, and price  
+Product cards clickable, navigate to detail page  
+Product detail page shows title, price, add-to-cart button  
 
 #### Test Scenario 3: Cart Operations
-✅ Add product to cart (count updates to "1")  
-✅ Cart page displays added item  
-✅ Remove product from cart (count updates to "0")  
-✅ Empty cart state visible  
-✅ **Cart cleanup verified** (idempotent, runs even on test failure)
+Add product to cart (count updates to "1")  
+Cart page displays added item  
+Remove product from cart (count updates to "0")  
+Empty cart state visible  
+**Cart cleanup verified** (idempotent, runs even on test failure)
 
-### What We DON'T Test
+### What ISN'T Tested
 
-❌ **Checkout Submission**: Tests stop before final checkout to avoid orders  
-❌ **Account Creation**: No persistent accounts created on live store  
-❌ **Payment Processing**: No real transactions executed  
-❌ **Inventory-Dependent Scenarios**: Tests use dynamic product selection (no hardcoded IDs)  
-✅ **Mobile & Tablet Viewports**: iOS (Safari) and Android (Chrome) devices included
-   - ⚠️ Known limitation: 2 navigation tests may fail on phone-sized viewports due to responsive menu differences  
+**Checkout Submission**: Tests stop before final checkout to avoid orders  
+**Account Creation**: No persistent accounts created on live store  
+**Payment Processing**: No real transactions executed  
+**Inventory-Dependent Scenarios**: Tests use dynamic product selection (no hardcoded IDs)  
 
 ---
 
@@ -555,96 +553,15 @@ Configure your CI platform to:
 
 On test failure, the following evidence is automatically collected:
 
-- 📸 **Screenshot** at failure point
-- 🎥 **Video recording** of entire test (optional)
-- 📋 **Console logs** from browser
-- 🌐 **Network request logs**
-- 📄 **Full page HTML**
+- **Screenshot** at failure point
+- **Video recording** of entire test (optional)
+- **Console logs** from browser
+- **Network request logs**
+- **Full page HTML**
 
 Reports are human-readable and designed for non-engineers to assess results quickly.
 
 ---
-
-## Contributing
-
-### Before Adding New Tests
-
-1. Review the [Project Constitution](.specify/memory/constitution.md)
-2. Create a [Plan](.specify/templates/plan-template.md) referencing constitutional principles
-3. Write a [Specification](.specify/templates/spec-template.md) with acceptance criteria
-4. Break down into [Tasks](.specify/templates/tasks-template.md) categorized by principle
-5. Implement with constitution compliance verified
-
-### Pull Request Checklist
-
-- [ ] Tests reference constitution principles in comments or PR description
-- [ ] Selectors are stable and have documented fallbacks
-- [ ] No arbitrary waits; all synchronization is explicit
-- [ ] State changes are cleaned up (or tests are read-only)
-- [ ] Tests pass 10 consecutive times without flake
-- [ ] Runtime stays within budget (< 30s per test, < 5min suite)
-- [ ] Evidence collection works (screenshots/videos on failure)
-- [ ] Non-engineers can understand failure reports
-
----
-
-## Maintenance
-
-### Handling Content Changes
-
-Live store content changes frequently. Our tests are designed to be resilient:
-
-- **Featured Products Rotate**: Tests select "any product" not specific IDs
-- **Promotions Change**: Tests avoid promotion-dependent logic
-- **Layout Updates**: Selectors have fallback strategies (primary + 2-3 fallbacks each)
-- **Collection Changes**: Collection handle configurable via `.env` (ANCHOR_COLLECTION_HANDLE)
-
-### Updating Tests
-
-When tests fail due to legitimate store changes:
-
-1. **Assess Impact**: Check if change violates constitution principles
-2. **Update Selectors**: Open `tests/utils/selectors.ts`, update fallback array
-3. **Test Locally**: Run affected scenario across all 4 viewports
-4. **Document**: Commit with theme version or change description
-
-See [Runbook](docs/runbook.md) for detailed troubleshooting steps.
-
-### Adding New Tests
-
-See [Maintenance Guide](docs/maintenance.md) for step-by-step instructions on:
-- Adding new test scenarios
-- Creating new Page Object Models
-- Updating selectors after theme changes
-- Constitutional compliance review
-
-### Quarterly Review
-
-Per constitutional governance (Principle 8), conduct quarterly reviews to:
-
-- Verify all tests still align with 8 constitutional principles
-- Identify technical debt (frequent fallback usage, slow tests)
-- Assess if new risks introduced (theme updates, store performance)
-- Update constitution if principles insufficient
-
-Next Review: [Add date 3 months from last review]
-
----
-
-## Support
-
-For questions or issues:
-
-- **Test Failures**: See [Runbook](docs/runbook.md) for common issues and solutions
-- **Maintenance**: See [Maintenance Guide](docs/maintenance.md) for adding tests and updating selectors
-- **Technical Issues**: Open GitHub issue with evidence (screenshots, logs, test report HTML)
-- **Store Owner**: johnsonjrre@gmail.com (receives failure email notifications)
-
----
-
-## License
-
-[Specify License Here]
 
 ---
 
