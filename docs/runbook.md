@@ -264,8 +264,8 @@
 
 6. **CI-Specific Issues:**
    - Check GitHub Actions runner logs
-   - Verify browser installation not timing out
-   - Consider increasing `timeout-minutes` in workflow (currently 10)
+   - Verify browser installation not timing out (installs both Chromium and WebKit)
+   - Current timeout: 15 minutes (increased for mobile device testing)
 
 ---
 
@@ -323,7 +323,7 @@
 ## Useful Commands
 
 ```bash
-# Run all tests
+# Run all tests (desktop + mobile)
 npm test
 
 # Run specific scenario
@@ -331,8 +331,20 @@ npm test -- homepage.spec.ts
 npm test -- collection.spec.ts
 npm test -- cart.spec.ts
 
-# Run specific viewport
+# Run specific desktop viewport
 npm test -- --project=full-hd
+npm test -- --project=standard-laptop
+
+# Run specific mobile device
+npm test -- --project=iphone-12-safari
+npm test -- --project=pixel-7-chrome
+npm test -- --project=galaxy-s21-chrome
+
+# Run all desktop devices only
+npm test -- --project=small-desktop --project=standard-laptop --project=full-hd --project=large-desktop
+
+# Run all mobile devices only
+npm test -- --project=iphone-12-safari --project=iphone-13-pro-safari --project=ipad-pro-safari --project=pixel-5-chrome --project=pixel-7-chrome --project=galaxy-s21-chrome
 
 # Run in headed mode (see browser)
 npm test -- --headed

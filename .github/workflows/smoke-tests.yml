@@ -10,16 +10,24 @@ on:
   workflow_dispatch:  # Manual trigger with options
     inputs:
       viewport:
-        description: 'Viewport to test (or "all" for all viewports)'
+        description: 'Viewport to test (or "all"/"all-desktop"/"all-mobile")'
         required: false
         default: 'all'
         type: choice
         options:
           - all
+          - all-desktop
+          - all-mobile
           - small-desktop
           - standard-laptop
           - full-hd
           - large-desktop
+          - iphone-12-safari
+          - iphone-13-pro-safari
+          - ipad-pro-safari
+          - pixel-5-chrome
+          - pixel-7-chrome
+          - galaxy-s21-chrome
       test_file:
         description: 'Test file to run (or "all" for full suite)'
         required: false
@@ -39,15 +47,20 @@ jobs:
   test:
     name: Test - ${{ matrix.viewport }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15  # Increased for mobile device testing
     
     strategy:
       # Don't cancel all jobs if one fails
       fail-fast: false
       matrix:
-        # 4 viewport configurations per spec
+        # All viewport configurations (4 desktop + 6 mobile)
         # For manual runs, can be filtered by input
-        viewport: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.viewport != 'all' && fromJSON(format('["{0}"]', github.event.inputs.viewport)) || fromJSON('["small-desktop", "standard-laptop", "full-hd", "large-desktop"]') }}
+        viewport: ${{ 
+          github.event_name == 'workflow_dispatch' && github.event.inputs.viewport == 'all-desktop' && fromJSON('["small-desktop", "standard-laptop", "full-hd", "large-desktop"]') ||
+          github.event_name == 'workflow_dispatch' && github.event.inputs.viewport == 'all-mobile' && fromJSON('["iphone-12-safari", "iphone-13-pro-safari", "ipad-pro-safari", "pixel-5-chrome", "pixel-7-chrome", "galaxy-s21-chrome"]') ||
+          github.event_name == 'workflow_dispatch' && github.event.inputs.viewport != 'all' && fromJSON(format('["{0}"]', github.event.inputs.viewport)) || 
+          fromJSON('["small-desktop", "standard-laptop", "full-hd", "large-desktop", "iphone-12-safari", "iphone-13-pro-safari", "ipad-pro-safari", "pixel-5-chrome", "pixel-7-chrome", "galaxy-s21-chrome"]') 
+        }}
     
     steps:
       - name: Display manual run info
@@ -72,7 +85,11 @@ jobs:
         run: npm ci
       
       - name: Install Playwright browsers
-        run: npx playwright install chromium --with-deps
+        run: |
+          # Install chromium for desktop and Android devices
+          npx playwright install chromium --with-deps
+          # Install webkit for iOS devices (iPhone, iPad)
+          npx playwright install webkit --with-deps
       
       - name: Run smoke tests
         env:
@@ -107,7 +124,7 @@ jobs:
           to: johnsonjrre@gmail.com
           from: Promethea Mosaic CI <no-reply@github.com>
           body: |
-            Test suite failed for viewport: ${{ matrix.viewport }}
+            Test suite failed for device: ${{ matrix.viewport }}
             
             **Test Run Details:**
             - Run Number: ${{ github.run_number }}
@@ -177,24 +194,34 @@ jobs:
             const failed = testJobs.filter(j => j.conclusion === 'failure').length;
             const total = testJobs.length;
             
+            // Categorize by device type
+            const desktopJobs = testJobs.filter(j => j.name.includes('desktop') || j.name.includes('hd'));
+            const mobileJobs = testJobs.filter(j => !j.name.includes('desktop') && !j.name.includes('hd'));
+            
+            const desktopPassed = desktopJobs.filter(j => j.conclusion === 'success').length;
+            const mobilePassed = mobileJobs.filter(j => j.conclusion === 'success').length;
+            
             // Determine overall status
-            const status = failed === 0 ? 'All tests passed!' : `${failed} viewport(s) failed`;
+            const status = failed === 0 ? 'All tests passed!' : `${failed} device(s) failed`;
             const emoji = failed === 0 ? '✅' : '❌';
             
             const body = `## ${emoji} Smoke Test Results
             
             **Status:** ${status}
             
-            | Viewport | Status | Duration |
+            | Device | Status | Duration |
             |----------|--------|----------|
             ${testJobs.map(j => {
               const viewport = j.name.replace('Test - ', '');
-              const status = j.conclusion === 'success' ? 'Passed' : 'Failed';
+              const status = j.conclusion === 'success' ? '✅ Passed' : '❌ Failed';
               const duration = Math.round((new Date(j.completed_at) - new Date(j.started_at)) / 1000);
               return `| ${viewport} | ${status} | ${duration}s |`;
             }).join('\n')}
             
-            **Summary:** ${passed}/${total} viewports passed
+            **Summary:** 
+            - Desktop: ${desktopPassed}/${desktopJobs.length} passed
+            - Mobile: ${mobilePassed}/${mobileJobs.length} passed
+            - Total: ${passed}/${total} devices passed
             
             ${failed > 0 ? '**Action Required:** Review failed test artifacts and screenshots in the workflow run.' : ''}
             

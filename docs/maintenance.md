@@ -98,11 +98,15 @@ test.afterEach(async ({ page }) => {
 # Run new test file only
 npx playwright test tests/smoke/new-scenario.spec.ts
 
-# Run across all 4 viewports
+# Run across all desktop viewports
 npx playwright test tests/smoke/new-scenario.spec.ts --project=small-desktop
 npx playwright test tests/smoke/new-scenario.spec.ts --project=standard-laptop
 npx playwright test tests/smoke/new-scenario.spec.ts --project=full-hd
 npx playwright test tests/smoke/new-scenario.spec.ts --project=large-desktop
+
+# Run across mobile devices
+npx playwright test tests/smoke/new-scenario.spec.ts --project=iphone-12-safari
+npx playwright test tests/smoke/new-scenario.spec.ts --project=pixel-7-chrome
 ```
 
 #### 7. Verify 10 Consecutive Passes
