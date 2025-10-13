@@ -32,9 +32,33 @@ export const SELECTORS = {
     timeout: 5000
   },
 
+  // Mobile navigation elements
+  mobileMenuButton: {
+    primary: 'button.header__icon--menu',  // Dawn theme hamburger button
+    fallback: ['button:has-text("Menu")', '[aria-label="Menu"]', '.header__icon--menu'],
+    timeout: 5000
+  },
+
+  mobileMenuDrawer: {
+    primary: '.menu-drawer',  // Dawn theme mobile drawer
+    fallback: ['#menu-drawer', '[id*="drawer"]', 'nav.mobile-nav'],
+    timeout: 5000
+  },
+
+  mobileNavigation: {
+    primary: '.menu-drawer__navigation',  // Dawn theme mobile nav container
+    fallback: ['.menu-drawer nav', '.mobile-nav', 'nav[role="navigation"]'],
+    timeout: 5000
+  },
+
   collectionsLink: {
-    primary: '.header__inline-menu a[href*="/collections"]',  // Dawn theme in visible nav
-    fallback: ['header a:has-text("Shop")', 'header a:has-text("Collections"):visible', 'a[href*="/collections"]:visible'],
+    primary: '.header__inline-menu a[href*="/collections"]',  // Dawn theme in visible nav (desktop)
+    fallback: [
+      'a[href*="/collections/all"]:visible',  // Collections "all" link
+      'header a:has-text("Catalog"):visible',  // Sometimes labeled "Catalog"
+      'a:has-text("Shop"):visible',  // Sometimes labeled "Shop"
+      'a:has-text("Collections"):visible'  // Generic collections link
+    ],
     timeout: 5000
   },
 
