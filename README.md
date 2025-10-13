@@ -490,10 +490,3 @@ On test failure, the following evidence is automatically collected:
 - **Full page HTML**
 
 Reports are human-readable and designed for non-engineers to assess results quickly.
-
----
-
----
-
-*This project adheres to a constitutional governance model. All testing decisions prioritize safety, clarity, and reliability. See [Constitution](.specify/memory/constitution.md) for details.*
-
