@@ -3,6 +3,7 @@ import { HomePage } from '../page-objects/HomePage';
 import { CollectionPage } from '../page-objects/CollectionPage';
 import { ProductPage } from '../page-objects/ProductPage';
 import { cleanupCart } from '../utils/cleanup';
+import { enableCartMocking } from '../utils/mockCart';
 
 /**
  * Test Scenario 2: Collection & Product Discovery
@@ -10,8 +11,15 @@ import { cleanupCart } from '../utils/cleanup';
  * 
  * Constitutional Principle 2: Guaranteed cleanup in afterEach
  * Constitutional Principle 3: Dynamic product selection (no hardcoded IDs)
+ * 
+ * NOTE: Cart mocking enabled to avoid rate limiting during cleanup
  */
 test.describe('Collection & Product Discovery', () => {
+  test.beforeEach(async ({ page }) => {
+    // Enable cart API mocking to avoid Cloudflare rate limits during cleanup
+    await enableCartMocking(page, { logRequests: false });
+  });
+
   test.afterEach(async ({ page }) => {
     // Cart cleanup (some tests may navigate to product pages)
     await cleanupCart(page);

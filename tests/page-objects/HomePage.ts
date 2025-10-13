@@ -45,11 +45,18 @@ export class HomePage {
     }
     
     try {
-      // Check if drawer is already open
-      const drawer = this.page.locator(SELECTORS.mobileMenuDrawer.primary);
-      const isDrawerVisible = await drawer.isVisible({ timeout: 1000 }).catch(() => false);
+      // Check if drawer is already open using fallback strategy
+      // We create a temporary selector config with shorter timeout for the quick check
+      const drawerCheckConfig = {
+        ...SELECTORS.mobileMenuDrawer,
+        timeout: 1000
+      };
       
-      if (isDrawerVisible) {
+      const isDrawerAlreadyOpen = await getElement(this.page, drawerCheckConfig)
+        .then(() => true)
+        .catch(() => false);
+      
+      if (isDrawerAlreadyOpen) {
         console.log('[HOMEPAGE] Mobile menu drawer already open');
         return;
       }
@@ -58,8 +65,8 @@ export class HomePage {
       const menuButton = await getElement(this.page, SELECTORS.mobileMenuButton);
       await menuButton.click();
       
-      // Wait for drawer to open
-      await drawer.waitFor({ state: 'visible', timeout: 5000 });
+      // Wait for drawer to open using fallback strategy
+      await getElement(this.page, SELECTORS.mobileMenuDrawer);
       
       console.log('[HOMEPAGE] Mobile menu drawer opened');
     } catch (error) {
