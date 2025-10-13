@@ -11,7 +11,16 @@
     "test:small-desktop": "playwright test --project=small-desktop",
     "test:standard-laptop": "playwright test --project=standard-laptop",
     "test:full-hd": "playwright test --project=full-hd",
-    "test:large-desktop": "playwright test --project=large-desktop"
+    "test:large-desktop": "playwright test --project=large-desktop",
+    "test:iphone-12": "playwright test --project=iphone-12-safari",
+    "test:iphone-13-pro": "playwright test --project=iphone-13-pro-safari",
+    "test:ipad-pro": "playwright test --project=ipad-pro-safari",
+    "test:pixel-5": "playwright test --project=pixel-5-chrome",
+    "test:pixel-7": "playwright test --project=pixel-7-chrome",
+    "test:galaxy-s21": "playwright test --project=galaxy-s21-chrome",
+    "test:mobile": "playwright test --project=iphone-12-safari --project=iphone-13-pro-safari --project=ipad-pro-safari --project=pixel-5-chrome --project=pixel-7-chrome --project=galaxy-s21-chrome",
+    "test:ios": "playwright test --project=iphone-12-safari --project=iphone-13-pro-safari --project=ipad-pro-safari",
+    "test:android": "playwright test --project=pixel-5-chrome --project=pixel-7-chrome --project=galaxy-s21-chrome"
   },
   "keywords": [],
   "author": "",

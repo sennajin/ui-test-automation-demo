@@ -36,10 +36,14 @@ This project provides end-to-end smoke tests for a live Shopify store. My testin
 ### Core User Flows (Smoke Suite)
 
 **Framework:** Playwright with TypeScript  
-**Browser:** Chromium (headless)  
-**Viewports:** 4 desktop resolutions (1280x720, 1366x768, 1920x1080, 2560x1440)  
-**Total Test Executions:** 12 (3 scenarios × 4 viewports)  
-**Target Runtime:** < 5 minutes
+**Browsers:** Chromium (desktop + Android), WebKit (iOS/Safari)  
+**Device Configurations:** 
+- 4 desktop resolutions (1280x720, 1366x768, 1920x1080, 2560x1440)
+- 3 iOS devices (iPhone 12, iPhone 13 Pro, iPad Pro)
+- 3 Android devices (Pixel 5, Pixel 7, Galaxy S21)
+
+**Total Test Executions:** 110 (11 scenarios × 10 device configurations)  
+**Target Runtime:** < 10 minutes (parallel execution with 6 workers)
 
 #### Test Scenario 1: Homepage & Navigation
 ✅ Brand title "Promethea Mosaic" visible on homepage  
@@ -65,7 +69,8 @@ This project provides end-to-end smoke tests for a live Shopify store. My testin
 ❌ **Account Creation**: No persistent accounts created on live store  
 ❌ **Payment Processing**: No real transactions executed  
 ❌ **Inventory-Dependent Scenarios**: Tests use dynamic product selection (no hardcoded IDs)  
-❌ **Mobile Viewports**: Desktop only (< 1280px width out of scope)  
+✅ **Mobile & Tablet Viewports**: iOS (Safari) and Android (Chrome) devices included
+   - ⚠️ Known limitation: 2 navigation tests may fail on phone-sized viewports due to responsive menu differences  
 
 ---
 
@@ -88,7 +93,7 @@ cd ui-test-automation-demo
 npm install
 
 # Install Playwright browsers
-npx playwright install chromium
+npx playwright install chromium webkit  # Chromium for desktop/Android, WebKit for iOS
 
 # Configure environment (optional - defaults to prometheamosaic.com)
 cp .env.example .env
@@ -120,6 +125,31 @@ npm test -- cart.spec.ts
 
 # Run specific test by name (grep pattern)
 npx playwright test --grep "should display brand title"
+```
+
+#### By Device/Viewport
+
+```bash
+# All mobile devices
+npm run test:mobile
+
+# Mobile by platform
+npm run test:ios        # All iOS devices
+npm run test:android    # All Android devices
+
+# Individual mobile devices
+npm run test:iphone-12
+npm run test:iphone-13-pro
+npm run test:ipad-pro
+npm run test:pixel-5
+npm run test:pixel-7
+npm run test:galaxy-s21
+
+# Desktop viewports
+npm run test:small-desktop
+npm run test:standard-laptop
+npm run test:full-hd
+npm run test:large-desktop
 ```
 
 #### By Viewport (Project)

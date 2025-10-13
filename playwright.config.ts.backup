@@ -8,7 +8,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 6 : undefined,
+  workers: process.env.CI ? 4 : undefined,
   reporter: [
     ['html', { outputFolder: 'playwright-report' }],
     ['list']
@@ -22,7 +22,6 @@ export default defineConfig({
     navigationTimeout: 10000,
   },
   projects: [
-    // Desktop viewports
     {
       name: 'small-desktop',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 720 } },
@@ -38,34 +37,6 @@ export default defineConfig({
     {
       name: 'large-desktop',
       use: { ...devices['Desktop Chrome'], viewport: { width: 2560, height: 1440 } },
-    },
-    
-    // iOS Mobile devices
-    {
-      name: 'iphone-12-safari',
-      use: { ...devices['iPhone 12'] },
-    },
-    {
-      name: 'iphone-13-pro-safari',
-      use: { ...devices['iPhone 13 Pro'] },
-    },
-    {
-      name: 'ipad-pro-safari',
-      use: { ...devices['iPad Pro'] },
-    },
-    
-    // Android Mobile devices
-    {
-      name: 'pixel-5-chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'pixel-7-chrome',
-      use: { ...devices['Pixel 7'] },
-    },
-    {
-      name: 'galaxy-s21-chrome',
-      use: { ...devices['Galaxy S21'] },
     },
   ],
 });
