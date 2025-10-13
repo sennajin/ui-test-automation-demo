@@ -1,9 +1,5 @@
 # UI Test Automation Demo
 
-> **Shopify Live Store E2E Testing Suite**  
-
----
-
 ## Overview
 
 This project provides end-to-end smoke tests for a live Shopify store. My testing approach is designed to build user trust through safe, transparent, and maintainable practices while providing clear evidence of system health for both technical and non-technical stakeholders.
