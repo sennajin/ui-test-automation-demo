@@ -39,6 +39,8 @@ export class ProductPage {
   /**
    * Click "Add to Cart" button and wait for cart update
    * Automatically waits for cart count to increment
+   * 
+   * Note: Tests use mocked cart API to avoid rate limiting on production
    */
   async clickAddToCart(): Promise<void> {
     // Get current cart count before adding

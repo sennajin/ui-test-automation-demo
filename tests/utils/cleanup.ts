@@ -26,9 +26,23 @@ export async function cleanupCart(page: Page): Promise<void> {
     console.log('[CLEANUP] Starting cart cleanup...');
     
     // Use Shopify's cart API to clear all items (most reliable method)
-    const response = await page.request.post('https://prometheamosaic.com/cart/clear.js');
+    // Using page.evaluate() instead of page.request to work with mocked cart API
+    const baseUrl = process.env.STORE_URL || 'https://prometheamosaic.com';
+    const success = await page.evaluate(async (url) => {
+      try {
+        const response = await fetch(`${url}/cart/clear.js`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        return response.ok;
+      } catch {
+        return false;
+      }
+    }, baseUrl);
     
-    if (response.ok()) {
+    if (success) {
       console.log('[CLEANUP] ✅ Cart cleared via Shopify cart API');
       // Give cart a moment to sync
       await page.waitForTimeout(500);
@@ -107,12 +121,16 @@ export async function verifyCartEmpty(page: Page): Promise<void> {
  * Note: This reads from cart.js API (source of truth) rather than
  * the visual badge element, which may show stale/cached data due to
  * theme JavaScript sync issues.
+ * 
+ * Uses page.evaluate() to work with mocked cart API
  */
 export async function getCurrentCartCount(page: Page): Promise<number> {
   try {
     const baseUrl = process.env.STORE_URL || 'https://prometheamosaic.com';
-    const response = await page.request.get(`${baseUrl}/cart.js`);
-    const cartData = await response.json();
+    const cartData = await page.evaluate(async (url) => {
+      const response = await fetch(`${url}/cart.js`);
+      return await response.json();
+    }, baseUrl);
     return cartData.item_count || 0;
   } catch (error) {
     console.warn('[CART] Failed to get cart count from API:', error);

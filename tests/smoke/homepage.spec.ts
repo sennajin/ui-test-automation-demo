@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { HomePage } from '../page-objects/HomePage';
 import { cleanupCart } from '../utils/cleanup';
+import { enableCartMocking } from '../utils/mockCart';
 
 /**
  * Test Scenario 1: Homepage & Navigation
@@ -8,8 +9,15 @@ import { cleanupCart } from '../utils/cleanup';
  * 
  * Constitutional Principle 2: Guaranteed cleanup in afterEach
  * Constitutional Principle 3: Explicit waits, semantic selectors
+ * 
+ * NOTE: Cart mocking enabled to avoid rate limiting during cleanup
  */
 test.describe('Homepage & Navigation', () => {
+  test.beforeEach(async ({ page }) => {
+    // Enable cart API mocking to avoid Cloudflare rate limits during cleanup
+    await enableCartMocking(page, { logRequests: false });
+  });
+
   test.afterEach(async ({ page }) => {
     // Cart cleanup (defensive, even though homepage tests don't modify cart)
     // Implements Constitution Principle 2: No residue

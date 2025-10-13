@@ -63,6 +63,8 @@ export async function waitForProductCard(page: Page): Promise<void> {
  * 
  * Note: Polls cart.js API (source of truth) rather than the visual badge,
  * which may show stale/cached data due to theme JavaScript sync issues.
+ * 
+ * Uses page.evaluate() to work with mocked cart API
  */
 export async function waitForCartCount(
   page: Page, 
@@ -74,8 +76,10 @@ export async function waitForCartCount(
   
   while (Date.now() - startTime < timeout) {
     try {
-      const response = await page.request.get(`${baseUrl}/cart.js`);
-      const cartData = await response.json();
+      const cartData = await page.evaluate(async (url) => {
+        const response = await fetch(`${url}/cart.js`);
+        return await response.json();
+      }, baseUrl);
       
       if (cartData.item_count === expectedCount) {
         return; // Success!
@@ -89,8 +93,10 @@ export async function waitForCartCount(
   }
   
   // Timeout reached - throw error with current state
-  const response = await page.request.get(`${baseUrl}/cart.js`);
-  const cartData = await response.json();
+  const cartData = await page.evaluate(async (url) => {
+    const response = await fetch(`${url}/cart.js`);
+    return await response.json();
+  }, baseUrl);
   throw new Error(
     `Cart count did not reach ${expectedCount} within ${timeout}ms. Current count: ${cartData.item_count}`
   );

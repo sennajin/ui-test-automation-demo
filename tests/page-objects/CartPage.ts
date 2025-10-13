@@ -40,11 +40,15 @@ export class CartPage {
    * Note: This reads from cart.js API (source of truth) rather than
    * the visual badge element, which may show stale/cached data due to
    * theme JavaScript sync issues.
+   * 
+   * Uses page.evaluate() to work with mocked cart API
    */
   async getCartCount(): Promise<number> {
     try {
-      const response = await this.page.request.get(`${this.url}.js`);
-      const cartData = await response.json();
+      const cartData = await this.page.evaluate(async (url) => {
+        const response = await fetch(`${url}.js`);
+        return await response.json();
+      }, this.url);
       return cartData.item_count || 0;
     } catch (error) {
       console.warn('[CART] Failed to get cart count from API:', error);
