@@ -60,7 +60,7 @@ jobs:
           github.event_name == 'workflow_dispatch' && github.event.inputs.viewport == 'all-mobile' && fromJSON('["iphone-12-safari", "iphone-13-pro-safari", "ipad-pro-safari", "pixel-5-chrome", "pixel-7-chrome", "galaxy-s21-chrome"]') ||
           github.event_name == 'workflow_dispatch' && github.event.inputs.viewport != 'all' && fromJSON(format('["{0}"]', github.event.inputs.viewport)) || 
           fromJSON('["small-desktop", "standard-laptop", "full-hd", "large-desktop", "iphone-12-safari", "iphone-13-pro-safari", "ipad-pro-safari", "pixel-5-chrome", "pixel-7-chrome", "galaxy-s21-chrome"]') 
-        }}
+          }}
     
     steps:
       - name: Display manual run info
