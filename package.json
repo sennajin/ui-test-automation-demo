@@ -20,7 +20,11 @@
     "test:galaxy-s21": "playwright test --project=galaxy-s21-chrome",
     "test:mobile": "playwright test --project=iphone-12-safari --project=iphone-13-pro-safari --project=ipad-pro-safari --project=pixel-5-chrome --project=pixel-7-chrome --project=galaxy-s21-chrome",
     "test:ios": "playwright test --project=iphone-12-safari --project=iphone-13-pro-safari --project=ipad-pro-safari",
-    "test:android": "playwright test --project=pixel-5-chrome --project=pixel-7-chrome --project=galaxy-s21-chrome"
+    "test:android": "playwright test --project=pixel-5-chrome --project=pixel-7-chrome --project=galaxy-s21-chrome",
+    "allure:generate": "allure generate allure-results --clean -o allure-report",
+    "allure:open": "allure open allure-report",
+    "allure:serve": "allure serve allure-results",
+    "test:allure": "playwright test && allure generate allure-results --clean -o allure-report"
   },
   "keywords": [],
   "author": "",
