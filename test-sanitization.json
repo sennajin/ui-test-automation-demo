@@ -1,0 +1,13 @@
+{
+  "testName": "Sensitive Data Test",
+  "parameters": {
+    "API_KEY": "sk_live_1234567890abcdefghijklmnop",
+    "password": "mysecretpassword123",
+    "token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ",
+    "api-key": "abc123def456ghi789jkl012mno345pqr567",
+    "url": "https://example.com?session_id=secret123&user_id=456",
+    "email": "admin@prometheamosaic.com",
+    "stripeKey": "pk_live_abcdefghijklmnopqrstuvwxyz123456"
+  }
+}
+

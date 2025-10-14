@@ -10,6 +10,30 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 3 : undefined,
   reporter: [
+    ['allure-playwright', {
+      detail: true,
+      outputFolder: 'allure-results',
+      suiteTitle: false, // Use custom suite names from test annotations
+      environmentInfo: {
+        'Test Environment': process.env.STORE_URL || 'https://prometheamosaic.com',
+        'Node Version': process.version,
+        'OS': process.platform,
+      },
+      categories: [
+        {
+          name: 'Product Defects',
+          matchedStatuses: ['failed']
+        },
+        {
+          name: 'Test Defects',
+          matchedStatuses: ['broken']
+        },
+        {
+          name: 'Passed Tests',
+          matchedStatuses: ['passed']
+        }
+      ]
+    }],
     ['html', { outputFolder: 'playwright-report' }],
     ['list']
   ],

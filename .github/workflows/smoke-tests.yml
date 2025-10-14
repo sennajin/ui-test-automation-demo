@@ -156,20 +156,125 @@ jobs:
     if: ${{ always() && github.event_name == 'workflow_dispatch' }}
     
     steps:
-      - name: Generate summary
-        run: |
-          echo "### Manual Test Run Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Configuration:**" >> $GITHUB_STEP_SUMMARY
-          echo "- Viewport: \`${{ github.event.inputs.viewport }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- Test File: \`${{ github.event.inputs.test_file }}\`" >> $GITHUB_STEP_SUMMARY
-          if [ -n "${{ github.event.inputs.description }}" ]; then
-            echo "- Description: ${{ github.event.inputs.description }}" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "- Initiated by: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Results:**" >> $GITHUB_STEP_SUMMARY
-          echo "Check the test job(s) above for detailed results and artifacts." >> $GITHUB_STEP_SUMMARY
+      - name: Generate manual run summary
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Fetch job results
+            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            });
+            
+            const testJobs = jobs.filter(j => j.name.startsWith('Test -'));
+            const passed = testJobs.filter(j => j.conclusion === 'success').length;
+            const failed = testJobs.filter(j => j.conclusion === 'failure').length;
+            const skipped = testJobs.filter(j => j.conclusion === 'skipped').length;
+            const total = testJobs.length;
+            const passRate = total > 0 ? Math.round((passed / total) * 100) : 0;
+            
+            // Calculate total duration
+            const totalDuration = testJobs.reduce((sum, j) => {
+              if (j.started_at && j.completed_at) {
+                return sum + (new Date(j.completed_at) - new Date(j.started_at));
+              }
+              return sum;
+            }, 0);
+            const durationMinutes = Math.round(totalDuration / 1000 / 60);
+            
+            // Device categorization
+            const desktopJobs = testJobs.filter(j => 
+              j.name.includes('desktop') || j.name.includes('hd'));
+            const mobileJobs = testJobs.filter(j => 
+              j.name.includes('iphone') || j.name.includes('ipad') || 
+              j.name.includes('pixel') || j.name.includes('galaxy'));
+            
+            const desktopPassed = desktopJobs.filter(j => j.conclusion === 'success').length;
+            const desktopFailed = desktopJobs.filter(j => j.conclusion === 'failure').length;
+            const mobilePassed = mobileJobs.filter(j => j.conclusion === 'success').length;
+            const mobileFailed = mobileJobs.filter(j => j.conclusion === 'failure').length;
+            
+            const desktopPassRate = desktopJobs.length > 0 ? 
+              Math.round((desktopPassed / desktopJobs.length) * 100) : 0;
+            const mobilePassRate = mobileJobs.length > 0 ? 
+              Math.round((mobilePassed / mobileJobs.length) * 100) : 0;
+            
+            // Build summary
+            let summary = '# 📊 Manual Test Run Summary\n\n';
+            
+            // Run Configuration
+            summary += '## Run Configuration\n\n';
+            summary += '| Parameter | Value |\n';
+            summary += '|-----------|-------|\n';
+            summary += `| **Triggered by** | @${{ github.actor }} |\n`;
+            summary += `| **Timestamp** | ${new Date().toISOString().replace('T', ' ').substring(0, 19)} UTC |\n`;
+            summary += `| **Commit** | \`${{ github.sha }}\`.substring(0, 7) |\n`;
+            summary += `| **Branch** | \`${{ github.ref_name }}\` |\n`;
+            summary += `| **Viewport Filter** | \`${{ github.event.inputs.viewport }}\` |\n`;
+            summary += `| **Test File Filter** | \`${{ github.event.inputs.test_file }}\` |\n`;
+            if ('${{ github.event.inputs.description }}') {
+              summary += `| **Description** | ${{ github.event.inputs.description }} |\n`;
+            }
+            summary += '\n';
+            
+            // Results Overview
+            summary += '## Results Overview\n\n';
+            const statusEmoji = failed === 0 ? '🟢' : '🔴';
+            const statusText = failed === 0 ? 'ALL PASSED' : 'FAILURES DETECTED';
+            summary += `### ${statusEmoji} ${statusText}\n\n`;
+            summary += '| Metric | Value |\n';
+            summary += '|--------|-------|\n';
+            summary += `| **Total Tests** | ${total} |\n`;
+            summary += `| **Passed** | ✅ ${passed} |\n`;
+            summary += `| **Failed** | ❌ ${failed} |\n`;
+            summary += `| **Skipped** | ⏭️ ${skipped} |\n`;
+            summary += `| **Pass Rate** | ${passRate}% |\n`;
+            summary += `| **Duration** | ${durationMinutes} minutes |\n`;
+            summary += '\n';
+            
+            // Device Coverage Breakdown
+            summary += '## Device Coverage\n\n';
+            summary += '| Device Type | Tests | Passed | Failed | Pass Rate |\n';
+            summary += '|-------------|-------|--------|--------|----------|\n';
+            summary += `| **Desktop** | ${desktopJobs.length} | ✅ ${desktopPassed} | ❌ ${desktopFailed} | ${desktopPassRate}% |\n`;
+            summary += `| **Mobile** | ${mobileJobs.length} | ✅ ${mobilePassed} | ❌ ${mobileFailed} | ${mobilePassRate}% |\n`;
+            summary += `| **Total** | ${total} | ✅ ${passed} | ❌ ${failed} | ${passRate}% |\n`;
+            summary += '\n';
+            
+            // Failed Tests Detail
+            if (failed > 0) {
+              summary += '## Failed Tests\n\n';
+              summary += '| Device | Status | Duration | Artifacts |\n';
+              summary += '|--------|--------|----------|----------|\n';
+              testJobs.filter(j => j.conclusion === 'failure').forEach(job => {
+                const device = job.name.replace('Test - ', '');
+                const duration = job.started_at && job.completed_at ? 
+                  Math.round((new Date(job.completed_at) - new Date(job.started_at)) / 1000) : 0;
+                const artifactLink = `[📁 View](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+                summary += `| ${device} | ❌ Failed | ${duration}s | ${artifactLink} |\n`;
+              });
+              summary += '\n';
+            }
+            
+            // Historical Comparison (placeholder for now - will be enhanced in US3)
+            summary += '## Historical Comparison\n\n';
+            summary += '> Historical trend data will be available after GitHub Pages publishing is enabled.\n\n';
+            summary += '_Coming soon: Pass rate trends, flaky test detection, duration comparison_\n\n';
+            
+            // Detailed Reports Links
+            summary += '## Detailed Reports\n\n';
+            summary += '- 📊 [Playwright HTML Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) (download artifacts)\n';
+            summary += '- 🎯 [Allure Report](placeholder - will be available after US3 implementation)\n';
+            summary += '- 📦 [All Artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n';
+            summary += '\n';
+            
+            // Write to step summary
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
+            
+            core.info('✅ Manual run summary generated successfully');
 
   # Post PR comment with test summary
   report:
