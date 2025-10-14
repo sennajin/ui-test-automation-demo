@@ -163,13 +163,13 @@ jobs:
             const fs = require('fs');
             
             // Fetch job results
-            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+            const { data } = await github.rest.actions.listJobsForWorkflowRun({
               owner: context.repo.owner,
               repo: context.repo.repo,
               run_id: context.runId,
             });
             
-            const testJobs = jobs.filter(j => j.name.startsWith('Test -'));
+            const testJobs = data.jobs.filter(j => j.name.startsWith('Test -'));
             const passed = testJobs.filter(j => j.conclusion === 'success').length;
             const failed = testJobs.filter(j => j.conclusion === 'failure').length;
             const skipped = testJobs.filter(j => j.conclusion === 'skipped').length;
@@ -211,7 +211,7 @@ jobs:
             summary += '|-----------|-------|\n';
             summary += `| **Triggered by** | @${{ github.actor }} |\n`;
             summary += `| **Timestamp** | ${new Date().toISOString().replace('T', ' ').substring(0, 19)} UTC |\n`;
-            summary += `| **Commit** | \`${{ github.sha }}\`.substring(0, 7) |\n`;
+            summary += `| **Commit** | \`${context.sha.substring(0, 7)}\` |\n`;
             summary += `| **Branch** | \`${{ github.ref_name }}\` |\n`;
             summary += `| **Viewport Filter** | \`${{ github.event.inputs.viewport }}\` |\n`;
             summary += `| **Test File Filter** | \`${{ github.event.inputs.test_file }}\` |\n`;
@@ -288,13 +288,13 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+            const { data } = await github.rest.actions.listJobsForWorkflowRun({
               owner: context.repo.owner,
               repo: context.repo.repo,
               run_id: context.runId,
             });
             
-            const testJobs = jobs.filter(j => j.name.startsWith('Test -'));
+            const testJobs = data.jobs.filter(j => j.name.startsWith('Test -'));
             const passed = testJobs.filter(j => j.conclusion === 'success').length;
             const failed = testJobs.filter(j => j.conclusion === 'failure').length;
             const total = testJobs.length;
