@@ -43,6 +43,12 @@ on:
         required: false
         type: string
 
+# Required permissions for workflow
+permissions:
+  contents: read          # To checkout code
+  actions: read           # To read workflow run data for summaries
+  pull-requests: write    # To post PR comments
+
 jobs:
   test:
     name: Test - ${{ matrix.viewport }}
